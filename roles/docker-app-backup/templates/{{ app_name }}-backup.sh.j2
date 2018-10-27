@@ -23,7 +23,6 @@ while read HOST; do
 	#Perform cleanup on host
 	rm -f {{ backup_dir }}/$HOST/{{ data_file }}
 	rm -f {{ backup_dir }}/$HOST/{{ sql_file }}
-  #Remove backup files older than 90 days
 	find {{ backup_dir }}/$HOST/*.xz -mtime +90 -exec rm {} \;
 
 done < {{ backup_dir }}/hosts.txt
