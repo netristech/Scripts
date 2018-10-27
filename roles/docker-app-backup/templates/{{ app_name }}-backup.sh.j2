@@ -1,0 +1,44 @@
+#! /bin/bash
+# NAME: WORDPRESS BACKUP SCRIPT FOR DOCKER CONTAINERS
+# AUTHOR: BRIAN C DUNHAM
+# COMPANY: NETRIS, LLC
+# VERSION: 1 
+
+TIMESTAMP=$(date +"%Y%m%d")
+APPNAME=wordpress
+BACKUP_DIR=/home/netris/backup
+DATA_FILE=${APPNAME}_${TIMESTAMP}.tar
+SQL_FILE=${APPNAME}_${TIMESTAMP}.sql
+BACKUP_FILE=${APPNAME}_backup_${TIMESTAMP}.tar
+APP_ROOT=/var/www
+DBSERVER=localhost
+DATABASE=$APPNAME
+DBUSER=root
+
+while read HOST; do
+	APP_CONTAINER=${HOST}_${APPNAME}
+	DB_CONTAINER=${APP_CONTAINER}_db
+
+	#Create archive of files in container
+	docker exec -d {{ app_container }} /bin/bash -c "tar -cf /root/{{ data_file }} -C {{ app_root }} {{ data_dir }}"
+	docker exec -d {{ db_container }} /bin/bash -c "mysqldump --host={{ db_server }} --user={{ db_user }} --password={{ db_password }} {{ database }} > /root/{{ sql_file }}"
+	
+	#Copy archive file from container to host
+	docker cp {{ app_container }}:/root/{{ data_file }} {{ backup_dir }}/$HOST/
+	docker cp {{ db_container }}:/root/{{ sql_file }}	{{ backup_dir }}/$HOST/
+	
+	#Archive and compress backup files
+	tar -cf {{ backup_dir }}/$HOST/{{ backup_file }} -C {{ backup_dir }}/$HOST {{ data_file }} {{ sql_file }}
+	xz -z {{ backup_dir }}/$HOST/{{ backup_file }}
+
+	#Perform cleanup on containers
+	docker exec -d {{ app_container }} /bin/bash -c "rm -f /root/{{ data_file }}"
+	docker exec -d {{ db_container }} /bin/bash -c "rm -f /root/{{ sql_file }}"
+	
+	#Perform cleanup on host
+	rm -f {{ backup_dir }}/$HOST/{{ data_file }}
+	rm -f {{ backup_dir }}/$HOST/{{ sql_file }}
+  #Remove backup files older than 90 days
+	find {{ backup_dir }}/$HOST/*.xz -mtime +90 -exec rm {} \;
+
+done < /home/netris/backup/hosts.txt
