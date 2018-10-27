@@ -26,4 +26,4 @@ while read HOST; do
   #Remove backup files older than 90 days
 	find {{ backup_dir }}/$HOST/*.xz -mtime +90 -exec rm {} \;
 
-done < /home/netris/backup/hosts.txt
+done < {{ backup_dir }}/hosts.txt
