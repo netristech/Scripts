@@ -9,7 +9,7 @@
   with_items:
   - { src: 'update.sh.j2', dest: '{{ script_root }}/update.sh', mode: '0700' }
 
-- name: Schedule automatic git update
+- name: Schedule Script Files
   cron:
     name: Update Scripts
     minute: "0"
