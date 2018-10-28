@@ -1,24 +1,24 @@
 #! /bin/bash
 
 while read HOST; do
-	APP_CONTAINER=${HOST}_${APPNAME}
+	APP_CONTAINER=${HOST}_{{ app_name }}
 	DB_CONTAINER=${APP_CONTAINER}_db
 
 	#Create archive of files in container
-	docker exec -d {{ app_container }} /bin/bash -c "tar -cf /root/{{ data_file }} -C {{ app_root }} {{ data_dir }}"
-	docker exec -d {{ db_container }} /bin/bash -c "mysqldump --host={{ db_server }} --user={{ db_user }} --password={{ db_password }} {{ database }} > /root/{{ sql_file }}"
+	docker exec -d $APP_CONTAINER /bin/bash -c "tar -cf /root/{{ data_file }} -C {{ app_root }} {{ data_dir }}"
+	docker exec -d $DB_CONTAINER /bin/bash -c "mysqldump --host={{ db_server }} --user={{ db_user }} --password={{ db_password }} {{ database }} > /root/{{ sql_file }}"
 	
 	#Copy archive file from container to host
-	docker cp {{ app_container }}:/root/{{ data_file }} {{ backup_dir }}/$HOST/
-	docker cp {{ db_container }}:/root/{{ sql_file }} {{ backup_dir }}/$HOST/
+	docker cp $APP_CONTAINER:/root/{{ data_file }} {{ backup_dir }}/$HOST/
+	docker cp $DB_CONTAINER:/root/{{ sql_file }} {{ backup_dir }}/$HOST/
 	
 	#Archive and compress backup files
 	tar -cf {{ backup_dir }}/$HOST/{{ backup_file }} -C {{ backup_dir }}/$HOST {{ data_file }} {{ sql_file }}
 	xz -z {{ backup_dir }}/$HOST/{{ backup_file }}
 
 	#Perform cleanup on containers
-	docker exec -d {{ app_container }} /bin/bash -c "rm -f /root/{{ data_file }}"
-	docker exec -d {{ db_container }} /bin/bash -c "rm -f /root/{{ sql_file }}"
+	docker exec -d $APP_CONTAINER /bin/bash -c "rm -f /root/{{ data_file }}"
+	docker exec -d $DB_CONTAINER /bin/bash -c "rm -f /root/{{ sql_file }}"
 	
 	#Perform cleanup on host
 	rm -f {{ backup_dir }}/$HOST/{{ data_file }}
