@@ -4,5 +4,7 @@
     name: Update Scripts
     minute: "0"
     hour: "12"
-    job: "{{ script_root }}/update.sh"
+    job: "{{ script_root }}/{{ item }}"
     state: present
+  with_items:
+    - update.sh
