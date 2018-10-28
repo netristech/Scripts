@@ -1,11 +1,7 @@
 ---
-TIMESTAMP=$(date +"%Y%m%d")
-APPNAME=wordpress
-BACKUP_DIR=/home/netris/backup
-DATA_FILE=${APPNAME}_${TIMESTAMP}.tar
-SQL_FILE=${APPNAME}_${TIMESTAMP}.sql
-BACKUP_FILE=${APPNAME}_backup_${TIMESTAMP}.tar
-APP_ROOT=/var/www
-DBSERVER=localhost
-DATABASE=$APPNAME
-DBUSER=root
+backup_dir: "/home/netris/backup"
+app_root: "/var/www"
+db_server: "localhost"
+db_user: "root"
+database: "{{ app_name }}"
+db_password: "{{ na_root_pw }}"
