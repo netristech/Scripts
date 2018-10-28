@@ -1,1 +1,8 @@
 ---
+- name: Schedule automatic git update
+  cron:
+    name: Update Scripts
+    minute: "0"
+    hour: "12"
+    job: "{{ script_dir }}"
+    state: present
