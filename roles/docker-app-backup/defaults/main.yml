@@ -1,0 +1,11 @@
+---
+TIMESTAMP=$(date +"%Y%m%d")
+APPNAME=wordpress
+BACKUP_DIR=/home/netris/backup
+DATA_FILE=${APPNAME}_${TIMESTAMP}.tar
+SQL_FILE=${APPNAME}_${TIMESTAMP}.sql
+BACKUP_FILE=${APPNAME}_backup_${TIMESTAMP}.tar
+APP_ROOT=/var/www
+DBSERVER=localhost
+DATABASE=$APPNAME
+DBUSER=root
