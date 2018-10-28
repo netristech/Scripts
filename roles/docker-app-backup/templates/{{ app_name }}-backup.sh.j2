@@ -1,28 +1,35 @@
 #! /bin/bash
 
 while read HOST; do
-	APP_CONTAINER=${HOST}_{{ app_name }}
+
+	#Set variables
+	HOST_SPLIT=( ${HOST//[.\/]/_} )
+	APP_CONTAINER=${HOST_SPLIT}_{{ app_name }}
 	DB_CONTAINER=${APP_CONTAINER}_db
+	TIMESTAMP=$(date +"%Y%m%d")
+	DATA_FILE={{ app_name }}_${TIMESTAMP}.tar
+	SQL_FILE={{ app_name }}_${TIMESTAMP}.sql
+	BACKUP_FILE={{ app_name }}_backup_${TIMESTAMP}.tar
 
 	#Create archive of files in container
-	docker exec -d $APP_CONTAINER /bin/bash -c "tar -cf /root/{{ data_file }} -C {{ app_root }} {{ data_dir }}"
-	docker exec -d $DB_CONTAINER /bin/bash -c "mysqldump --host={{ db_server }} --user={{ db_user }} --password={{ db_password }} {{ database }} > /root/{{ sql_file }}"
+	docker exec -d $APP_CONTAINER /bin/bash -c "tar -cf /root/${DATA_FILE} -C {{ app_root }} {{ data_dir }}"
+	docker exec -d $DB_CONTAINER /bin/bash -c "mysqldump --host={{ db_server }} --user={{ db_user }} --password={{ db_password }} {{ database }} > /root/${SQL_FILE}"
 	
 	#Copy archive file from container to host
-	docker cp $APP_CONTAINER:/root/{{ data_file }} {{ backup_dir }}/$HOST/
-	docker cp $DB_CONTAINER:/root/{{ sql_file }} {{ backup_dir }}/$HOST/
+	docker cp $APP_CONTAINER:/root/$DATA_FILE {{ backup_dir }}/$HOST/
+	docker cp $DB_CONTAINER:/root/$SQL_FILE {{ backup_dir }}/$HOST/
 	
 	#Archive and compress backup files
-	tar -cf {{ backup_dir }}/$HOST/{{ backup_file }} -C {{ backup_dir }}/$HOST {{ data_file }} {{ sql_file }}
-	xz -z {{ backup_dir }}/$HOST/{{ backup_file }}
+	tar -cf {{ backup_dir }}/$HOST/$BACKUP_FILE -C {{ backup_dir }}/$HOST $DATA_FILE $SQL_FILE
+	xz -z {{ backup_dir }}/$HOST/$BACKUP_FILE
 
 	#Perform cleanup on containers
-	docker exec -d $APP_CONTAINER /bin/bash -c "rm -f /root/{{ data_file }}"
-	docker exec -d $DB_CONTAINER /bin/bash -c "rm -f /root/{{ sql_file }}"
+	docker exec -d $APP_CONTAINER /bin/bash -c "rm -f /root/${DATA_FILE}"
+	docker exec -d $DB_CONTAINER /bin/bash -c "rm -f /root/${SQL_FILE}"
 	
 	#Perform cleanup on host
-	rm -f {{ backup_dir }}/$HOST/{{ data_file }}
-	rm -f {{ backup_dir }}/$HOST/{{ sql_file }}
+	rm -f {{ backup_dir }}/$HOST/$DATA_FILE
+	rm -f {{ backup_dir }}/$HOST/$SQL_FILE
 	find {{ backup_dir }}/$HOST/*.xz -mtime +90 -exec rm {} \;
 
 done < {{ backup_dir }}/hosts.txt
