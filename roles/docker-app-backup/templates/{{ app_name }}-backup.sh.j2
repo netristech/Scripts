@@ -10,7 +10,7 @@ while read HOST; do
 	
 	#Copy archive file from container to host
 	docker cp {{ app_container }}:/root/{{ data_file }} {{ backup_dir }}/$HOST/
-	docker cp {{ db_container }}:/root/{{ sql_file }}	{{ backup_dir }}/$HOST/
+	docker cp {{ db_container }}:/root/{{ sql_file }} {{ backup_dir }}/$HOST/
 	
 	#Archive and compress backup files
 	tar -cf {{ backup_dir }}/$HOST/{{ backup_file }} -C {{ backup_dir }}/$HOST {{ data_file }} {{ sql_file }}
