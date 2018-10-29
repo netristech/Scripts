@@ -1,4 +1,15 @@
+
 ---
+- name: create backup dir
+  file:
+    path: "{{ item.path }}"
+    state: "{{ item.state }}"
+    owner: "{{ item.owner | default('root') }}"
+    group: "{{ item.group | default('root') }}"
+    mode: "{{ item.mode | default('0755') }}"
+  with_items:
+  - { path: '{{ script_root }}', state: 'directory' }
+  
 - name: Copy Script Files
   template:
     src: "{{ item.src }}"
