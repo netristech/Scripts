@@ -13,4 +13,4 @@
       ansible_distribution_major_version: "7"
   roles:
   - common
-  - "{{ app_name }}-backup"
+  - docker-app-backup
