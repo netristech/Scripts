@@ -17,6 +17,16 @@
     group: "{{ item.group | default('root') }}"
     mode: "{{ item.mode | default('0644') }}"
   with_items:
-  - { src: 'docker-compose.yml.j2', dest: '{{ instance_root }}/docker-compose.yml' }
-  - { src: 'wp-config.php.j2', dest: '{{ instance_root }}/wp-config.php' }
+  - { src: '{{ app_name }}-backup.sh.j2', dest: '{{ script_root }}/{{ app_name }}-backup.sh', mode: '0700' }
+  - { src: 'hosts.txt.j2', dest: '{{ backup_dir }}/hosts.txt' }
+  
+  - name: Schedule script
+    cron:
+      name: {{ appname }}-backup
+      minute: "0"
+      hour: "2"
+      job: "{{ item }}
+      state: present
+    with_items:
+    - "{{ script_root }/{{ app_name }}-backup.sh"
   
