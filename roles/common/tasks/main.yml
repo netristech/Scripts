@@ -1,6 +1,6 @@
 
 ---
-- name: create backup dir
+- name: create Script dir
   file:
     path: "{{ item.path }}"
     state: "{{ item.state }}"
