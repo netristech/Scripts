@@ -9,23 +9,3 @@
     mode: "{{ item.mode | default('0755') }}"
   with_items:
   - { path: '{{ script_root }}', state: 'directory' }
-  
-- name: Copy Script Files
-  template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ item.owner | default('root') }}"
-    group: "{{ item.group | default('root') }}"
-    mode: "{{ item.mode | default('0644') }}"
-  with_items:
-  - { src: 'update.sh.j2', dest: '{{ script_root }}/update.sh', mode: '0700' }
-
-- name: Schedule Script Files
-  cron:
-    name: Update Scripts
-    minute: "0"
-    hour: "12"
-    job: "{{ item }}"
-    state: present
-  with_items:
-    - "{{ script_root }}/update.sh
