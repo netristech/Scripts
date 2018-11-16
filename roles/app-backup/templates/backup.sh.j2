@@ -30,6 +30,6 @@ while read HOST; do
 	#Perform cleanup on host
 	rm -f {{ backup_dir }}/$HOST/$DATA_FILE
 	rm -f {{ backup_dir }}/$HOST/$SQL_FILE
-	find {{ backup_dir }}/$HOST/*.xz -mtime +90 -exec rm {} \;
+	find {{ backup_dir }}/$HOST/*.xz -mtime +30 -exec rm {} \;
 
 done < {{ backup_dir }}/hosts.txt
