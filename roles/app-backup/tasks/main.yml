@@ -1,6 +1,24 @@
 ---
+- name: Check if rclone exists
+  stat:
+    path: "{{ rclone_path }}"
+  register: rclone
+  
+- name: Download rclone install script
+  command: "cd /home/netris && curl -O https://rclone.org/install.sh"
+  
+- name: Change permission on rclone install script
+  file:
+    path: /home/netris/install.sh
+    mode: 0755
+    
 - name: Install rclone
-  command: "curl https://rclone.org/install.sh | bash"
+  script: /home/netris/install.sh
+    
+- name: Delete rclone install script
+  file:
+    path: /home/netris/install.sh
+    state: absent
   
 - name: create backup dir
   file:
