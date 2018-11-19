@@ -1,11 +1,11 @@
 ---
 - name: Install packages
   yum:
-    name: "{{ item.name }}"
-    state: "{{ item.state }}"
-    update: yes
+    name: "{{ item }}"
+    state: latest
+    update_cache: yes
   with_items:
-  - { name: 'duplicity', state: 'present' }
+  - duplicity
   
 - name: create backup dir
   file:
