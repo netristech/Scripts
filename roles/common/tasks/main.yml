@@ -27,7 +27,7 @@
   - MySQL-python
   - gcc
   - git
-  - nano
+  - unzip
   - tar
   - xz
   - python-simplejson
