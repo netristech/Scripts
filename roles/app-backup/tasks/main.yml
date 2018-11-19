@@ -5,22 +5,22 @@
   register: rclone
   
 - name: Download rclone install script
-  command: "cd /home/netris && curl -O https://rclone.org/install.sh"
+  command: "cd {{ script_root }} && curl -O https://rclone.org/install.sh"
   when: rclone.stat.exists == False
   
 - name: Change permission on rclone install script
   file:
-    path: /home/netris/install.sh
+    path: "{{ script_root }}/install.sh"
     mode: 0755
   when: rclone.stat.exists == False
     
 - name: Install rclone
-  script: /home/netris/install.sh
+  script: "{{ script_root }}/install.sh"
   when: rclone.stat.exists == False
     
 - name: Delete rclone install script
   file:
-    path: /home/netris/install.sh
+    path: "{{ script_root }}/install.sh"
     state: absent
   when: rclone.stat.exists == False
   
