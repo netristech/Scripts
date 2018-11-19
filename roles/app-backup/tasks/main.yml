@@ -6,19 +6,23 @@
   
 - name: Download rclone install script
   command: "cd /home/netris && curl -O https://rclone.org/install.sh"
+  when: rclone.stat.exists == False
   
 - name: Change permission on rclone install script
   file:
     path: /home/netris/install.sh
     mode: 0755
+  when: rclone.stat.exists == False
     
 - name: Install rclone
   script: /home/netris/install.sh
+  when: rclone.stat.exists == False
     
 - name: Delete rclone install script
   file:
     path: /home/netris/install.sh
     state: absent
+  when: rclone.stat.exists == False
   
 - name: create backup dir
   file:
