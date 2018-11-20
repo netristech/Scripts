@@ -16,6 +16,7 @@ while read HOST; do
 	docker exec -d $DB_CONTAINER /bin/bash -c "mysqldump --host={{ db_server }} --user={{ db_user }} --password={{ db_password }} {{ database }} > /root/${SQL_FILE}"
 	
 	#Copy archive file from container to host
+	mkdir -p {{ backup_dir }}/$HOST/
 	docker cp $APP_CONTAINER:/root/$DATA_FILE {{ backup_dir }}/$HOST/
 	docker cp $DB_CONTAINER:/root/$SQL_FILE {{ backup_dir }}/$HOST/
 	
