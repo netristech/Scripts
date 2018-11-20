@@ -32,4 +32,4 @@ while read HOST; do
 	rm -f {{ backup_dir }}/$HOST/$SQL_FILE
 	find {{ backup_dir }}/$HOST/*.xz -mtime +30 -exec rm {} \;
 
-done < {{ backup_dir }}/hosts.txt
+done < {{ backup_dir }}/{{ app_name }}-hosts.txt
