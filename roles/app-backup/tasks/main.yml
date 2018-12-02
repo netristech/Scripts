@@ -34,7 +34,7 @@
   with_items:
   - { path: '{{ backup_dir }}', state: 'directory' }
   
-- name: Copy shared template files
+- name: Copy template files
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -43,30 +43,8 @@
     mode: "{{ item.mode | default('0644') }}"
   with_items:
   - { src: 'rclone.conf.j2', dest: '{{ rclone_config_dir }}/rclone.conf', mode: '0600' }
-  
-- name: Copy wp template files
-  template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ item.owner | default('root') }}"
-    group: "{{ item.group | default('root') }}"
-    mode: "{{ item.mode | default('0644') }}"
-  with_items:
-  - { src: 'wp_backup.sh.j2', dest: '{{ script_root }}/{{ app_name }}-backup.sh', mode: '0700' }
-  - { src: 'wp_hosts.txt.j2', dest: '{{ backup_dir }}/{{ app_name }}-hosts.txt' }
-  when: app_name == "wordpress"
-  
-- name: Copy na template files
-  template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ item.owner | default('root') }}"
-    group: "{{ item.group | default('root') }}"
-    mode: "{{ item.mode | default('0644') }}"
-  with_items:
-  - { src: 'na_backup.sh.j2', dest: '{{ script_root }}/{{ app_name }}-backup.sh', mode: '0700' }
-  - { src: 'na_hosts.txt.j2', dest: '{{ backup_dir }}/{{ app_name }}-hosts.txt' }
-  when: app_name == "na"
+  - { src: '{{ app_name }}_backup.sh.j2', dest: '{{ script_root }}/{{ app_name }}-backup.sh', mode: '0700' }
+  - { src: '{{ app_name }}_hosts.txt.j2', dest: '{{ backup_dir }}/{{ app_name }}-hosts.txt' }  
   
 - name: Schedule backups
   cron:
