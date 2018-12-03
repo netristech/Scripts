@@ -2,6 +2,7 @@
 backup_dir: "/home/netris/backup"
 app_root: "/var/www"
 data_dir: "html"
+etc_dir: "NetrisAppointments"
 db_server: "localhost"
 db_user: "root"
 database: "{{ app_name }}"
