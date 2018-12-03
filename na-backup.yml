@@ -1,5 +1,5 @@
 ---
-- hosts: NetrisAppointments
+- hosts: apphosts
   remote_user: netris
   become: yes
   gather_facts: no
