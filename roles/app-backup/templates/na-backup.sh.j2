@@ -7,30 +7,40 @@ while read HOST; do
 	APP_CONTAINER=${HOST_SPLIT}_{{ app_name }}
 	DB_CONTAINER=${APP_CONTAINER}_db
 	TIMESTAMP=$(date +"%Y%m%d")
-	DATA_FILE={{ app_name }}_${TIMESTAMP}.tar
-	SQL_FILE={{ app_name }}_${TIMESTAMP}.sql
+	WWW_FILE={{ app_name }}www_${TIMESTAMP}.tar
+	ETC_FILE={{ app_name }}etc_${TIMESTAMP}.tar
+	NADB_FILE=nadb_${TIMESTAMP}.sql
+	EQDB_FILE=eqdb_${TIMESTAMP}.sql
 	BACKUP_FILE={{ app_name }}_backup_${TIMESTAMP}.tar
 
 	#Create archive of files in container
-	docker exec -d $APP_CONTAINER /bin/bash -c "tar -cf /root/${DATA_FILE} -C {{ app_root }} {{ data_dir }}"
-	docker exec -d $DB_CONTAINER /bin/bash -c "mysqldump --host={{ db_server }} --user={{ db_user }} --password={{ db_password }} {{ database }} > /root/${SQL_FILE}"
+	docker exec -d $APP_CONTAINER /bin/bash -c "tar -cf /root/${WWW_FILE} -C {{ app_root }} {{ data_dir }}"
+	docker exec -d $APP_CONTAINER /bin/bash -c "tar -cf /root/${ETC_FILE} -C /etc {{ etc_dir }}"
+	docker exec -d $DB_CONTAINER /bin/bash -c "mysqldump --host={{ db_server }} --user={{ db_user }} --password={{ db_password }} na > /root/${NADB_FILE}"
+	docker exec -d $DB_CONTAINER /bin/bash -c "mysqldump --host={{ db_server }} --user={{ db_user }} --password={{ db_password }} eq > /root/${EQDB_FILE}"
 	
 	#Copy archive file from container to host
 	mkdir -p {{ backup_dir }}/$HOST
-	docker cp $APP_CONTAINER:/root/$DATA_FILE {{ backup_dir }}/$HOST/
-	docker cp $DB_CONTAINER:/root/$SQL_FILE {{ backup_dir }}/$HOST/
+	docker cp $APP_CONTAINER:/root/$WWW_FILE {{ backup_dir }}/$HOST/
+	docker cp $APP_CONTAINER:/root/$ETC_FILE {{ backup_dir }}/$HOST/
+	docker cp $DB_CONTAINER:/root/$NADB_FILE {{ backup_dir }}/$HOST/
+	docker cp $DB_CONTAINER:/root/$EQDB_FILE {{ backup_dir }}/$HOST/
 	
 	#Archive and compress backup files
-	tar -cf {{ backup_dir }}/$HOST/$BACKUP_FILE -C {{ backup_dir }}/$HOST $DATA_FILE $SQL_FILE
+	tar -cf {{ backup_dir }}/$HOST/$BACKUP_FILE -C {{ backup_dir }}/$HOST $WWW_FILE $ETC_FILE $NADB_FILE $EQDB_FILE
 	xz -z {{ backup_dir }}/$HOST/$BACKUP_FILE
 
 	#Perform cleanup on containers
-	docker exec -d $APP_CONTAINER /bin/bash -c "rm -f /root/${DATA_FILE}"
-	docker exec -d $DB_CONTAINER /bin/bash -c "rm -f /root/${SQL_FILE}"
+	docker exec -d $APP_CONTAINER /bin/bash -c "rm -f /root/${WWW_FILE}"
+	docker exec -d $APP_CONTAINER /bin/bash -c "rm -f /root/${ETC_FILE}"
+	docker exec -d $DB_CONTAINER /bin/bash -c "rm -f /root/${NADB_FILE}"
+	docker exec -d $DB_CONTAINER /bin/bash -c "rm -f /root/${EQDB_FILE}"
 	
 	#Perform cleanup on host
-	rm -f {{ backup_dir }}/$HOST/$DATA_FILE
-	rm -f {{ backup_dir }}/$HOST/$SQL_FILE
+	rm -f {{ backup_dir }}/$HOST/$WWW_FILE
+	rm -f {{ backup_dir }}/$HOST/$ETC_FILE
+	rm -f {{ backup_dir }}/$HOST/$NADB_FILE
+	rm -f {{ backup_dir }}/$HOST/$EQDB_FILE
 	find {{ backup_dir }}/$HOST/*.xz -mtime +30 -exec rm {} \;
 
 done < {{ backup_dir }}/{{ app_name }}-hosts.txt
