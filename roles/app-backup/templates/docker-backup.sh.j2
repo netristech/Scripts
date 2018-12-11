@@ -1,1 +1,20 @@
+#! /bin/bash
 
+#Create hosts file
+docker ps --format '{{.Names}}' > {{ backup_dir }}/containers.txt
+
+while read HOST; do
+
+	#Set variables
+	TIMESTAMP=$(date +"%Y%m%d")
+	BACKUP_FILE=${HOST}_${TIMESTAMP}.tar
+  
+	#Archive and compress backup files
+  mkdir -p {{ backup_dir }}/dockerimages
+  docker export -o {{ backup_dir }}/dockerimages/$BACKUP_FILE $HOST
+  xz -z {{ backup_dir }}/dockerimages/$BACKUP_FILE
+
+	#Perform cleanup on host
+	find {{ backup_dir }}/dockerimages/*.xz -mtime +90 -exec rm {} \;
+
+done < {{ backup_dir }}/containers.txt
