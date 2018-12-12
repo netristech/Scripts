@@ -10,11 +10,11 @@ while read HOST; do
   BACKUP_FILE=${HOST}_${TIMESTAMP}.tar
   
   #Archive and compress backup files
-  mkdir -p {{ backup_dir }}/dockerimages
-  docker export -o {{ backup_dir }}/dockerimages/$BACKUP_FILE $HOST
-  xz -z {{ backup_dir }}/dockerimages/$BACKUP_FILE
+  mkdir -p {{ backup_dir }}/docker
+  docker export -o {{ backup_dir }}/docker/$BACKUP_FILE $HOST
+  xz -z {{ backup_dir }}/docker/$BACKUP_FILE
 
   #Perform cleanup on host
-  find {{ backup_dir }}/dockerimages/*.xz -mtime +90 -exec rm {} \;
+  find {{ backup_dir }}/docker/*.xz -mtime +90 -exec rm {} \;
 
 done < {{ backup_dir }}/containers.txt
