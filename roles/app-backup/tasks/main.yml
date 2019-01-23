@@ -53,8 +53,8 @@
     job: "{{ item.job }}"
     state: present
   with_items:
-  - { name: '{{ app_name }}-backup', time: '6', job: '{{ script_root }}/{{ app_name }}-backup.sh' }
-  - { name: 'cloud sync', time: '8', job: 'rclone sync {{ backup_dir }} encrypt:' }
+  - { name: '{{ app_name }}-backup', time: '6', job: '{{ script_root }}/{{ app_name }}-backup.sh > /dev/null 2>&1' }
+  - { name: 'cloud sync', time: '8', job: 'rclone sync {{ backup_dir }} encrypt: > /dev/null 2>&1' }
   when: app_name != "docker"
 
 - name: Schedule backups
@@ -66,5 +66,5 @@
     job: "{{ item.job }}"
     state: present
   with_items:
-  - { name: '{{ app_name }}-backup', time: '6', day: '12', job: '{{ script_root }}/{{ app_name }}-backup.sh' }
+  - { name: '{{ app_name }}-backup', time: '6', day: '12', job: '{{ script_root }}/{{ app_name }}-backup.sh > /dev/null 2>&1' }
   when: app_name == "docker"
