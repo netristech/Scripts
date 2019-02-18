@@ -42,8 +42,8 @@
     group: "{{ item.group | default('root') }}"
     mode: "{{ item.mode | default('0644') }}"
   with_items:
-  - { src: 'rclone.conf.j2', dest: '{{ rclone_config_dir }}/rclone.conf', mode: '0600' }
-  - { src: '{{ app_name }}-backup.sh.j2', dest: '{{ script_root }}/{{ app_name }}-backup.sh', mode: '0700' }
+  - { src: 'rclone.conf.j2', dest: '{{ rclone_config_dir }}/rclone.conf', mode: '0660' }
+  - { src: '{{ app_name }}-backup.sh.j2', dest: '{{ script_root }}/{{ app_name }}-backup.sh', mode: '0740' }
   
 - name: Schedule backups
   cron:
