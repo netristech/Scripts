@@ -27,7 +27,7 @@ while read HOST; do
 	
 	#Archive and compress backup files
 	tar -cf {{ backup_dir }}/$HOST/$BACKUP_FILE -C {{ backup_dir }}/$HOST $DATA_FILE $SQL_FILE
-	xz -z {{ backup_dir }}/$HOST/$BACKUP_FILE
+	xz -zk {{ backup_dir }}/$HOST/$BACKUP_FILE
 
 	#Perform cleanup on containers
 	#docker exec -d $APP_CONTAINER /bin/bash -c "rm -f /root/${DATA_FILE}"
