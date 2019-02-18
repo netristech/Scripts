@@ -1,11 +1,14 @@
-#! /bin/bash
+#!/bin/bash
+
+#create hosts file
+docker ps --format={% raw %}'{{.Names}}'{% endraw %} | grep "_na\>" > {{ backup_dir }}/{{ app_name }}-hosts.txt
 
 while read HOST; do
 
 	#Set variables
-	HOST_SPLIT=( ${HOST//[.\/]/_} )
-	APP_CONTAINER=${HOST_SPLIT}_{{ app_name }}
-	DB_CONTAINER=${APP_CONTAINER}_db
+	#HOST_SPLIT=( ${HOST//[.\/]/_} )
+	APP_CONTAINER=${HOST}
+	DB_CONTAINER=${HOST}_db
 	TIMESTAMP=$(date +"%Y%m%d")
 	WWW_FILE={{ app_name }}www_${TIMESTAMP}.tar
 	ETC_FILE={{ app_name }}etc_${TIMESTAMP}.tar
@@ -41,6 +44,6 @@ while read HOST; do
 	rm -f {{ backup_dir }}/$HOST/$ETC_FILE
 	rm -f {{ backup_dir }}/$HOST/$NADB_FILE
 	rm -f {{ backup_dir }}/$HOST/$EQDB_FILE
-	find {{ backup_dir }}/$HOST/*.xz -mtime +30 -exec rm {} \;
+	find {{ backup_dir }}/$HOST/*.xz -mtime +14 -exec rm {} \;
 
 done < {{ backup_dir }}/{{ app_name }}-hosts.txt
