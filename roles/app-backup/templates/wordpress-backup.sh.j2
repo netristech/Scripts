@@ -1,10 +1,11 @@
-#! /bin/bash
+#!/bin/bash
 
 while read HOST; do
 
 	#Set variables
 	HOST_SPLIT=( ${HOST//[.\/]/_} )
 	APP_CONTAINER=${HOST_SPLIT}_{{ app_name }}
+	APP_VOLUME=$(docker inspect -f '{{ (index .Mounts 0).Source }}' ${HOST})
 	DB_CONTAINER=${APP_CONTAINER}_db
 	TIMESTAMP=$(date +"%Y%m%d")
 	DATA_FILE={{ app_name }}_${TIMESTAMP}.tar
