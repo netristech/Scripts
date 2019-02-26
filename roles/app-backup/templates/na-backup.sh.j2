@@ -7,7 +7,8 @@ while read HOST; do
 
 	#Set variables
 	#HOST_SPLIT=( ${HOST//[.\/]/_} )
-	APP_CONTAINER=${HOST}
+	#APP_CONTAINER=${HOST}
+	APP_VOLUME=$(docker inspect --format={% raw %}'{{ (index .Mounts 0).Source }}'{% endraw %} ${HOST})
 	DB_CONTAINER=${HOST}_db
 	TIMESTAMP=$(date +"%Y%m%d")
 	WWW_FILE={{ app_name }}www_${TIMESTAMP}.tar
@@ -17,15 +18,16 @@ while read HOST; do
 	BACKUP_FILE={{ app_name }}_backup_${TIMESTAMP}.tar
 
 	#Create archive of files in container
-	docker exec -d $APP_CONTAINER /bin/bash -c "tar -cf /root/${WWW_FILE} -C {{ app_root }} {{ data_dir }}"
-	docker exec -d $APP_CONTAINER /bin/bash -c "tar -cf /root/${ETC_FILE} -C /etc {{ etc_dir }}"
+	mkdir -p {{ backup_dir }}/$HOST
+	#docker exec -d $APP_CONTAINER /bin/bash -c "tar -cf /root/${WWW_FILE} -C {{ app_root }} {{ data_dir }}"
+	tar -cf {{ backup_dir }}/$HOST/$WWW_FILE -C $APP_VOLUME .
+	docker exec -d $HOST /bin/bash -c "tar -cf /root/${ETC_FILE} -C /etc {{ etc_dir }}"
 	docker exec -d $DB_CONTAINER /bin/bash -c "mysqldump --host={{ db_server }} --user={{ db_user }} --password={{ db_password }} na > /root/${NADB_FILE}"
 	docker exec -d $DB_CONTAINER /bin/bash -c "mysqldump --host={{ db_server }} --user={{ db_user }} --password={{ db_password }} eq > /root/${EQDB_FILE}"
 	
 	#Copy archive file from container to host
-	mkdir -p {{ backup_dir }}/$HOST
-	docker cp $APP_CONTAINER:/root/$WWW_FILE {{ backup_dir }}/$HOST/
-	docker cp $APP_CONTAINER:/root/$ETC_FILE {{ backup_dir }}/$HOST/
+	#docker cp $APP_CONTAINER:/root/$WWW_FILE {{ backup_dir }}/$HOST/
+	docker cp $HOST:/root/$ETC_FILE {{ backup_dir }}/$HOST/
 	docker cp $DB_CONTAINER:/root/$NADB_FILE {{ backup_dir }}/$HOST/
 	docker cp $DB_CONTAINER:/root/$EQDB_FILE {{ backup_dir }}/$HOST/
 	
@@ -34,8 +36,8 @@ while read HOST; do
 	xz -zkf {{ backup_dir }}/$HOST/$BACKUP_FILE
 
 	#Perform cleanup on containers
-	docker exec -d $APP_CONTAINER /bin/bash -c "rm -f /root/${WWW_FILE}"
-	docker exec -d $APP_CONTAINER /bin/bash -c "rm -f /root/${ETC_FILE}"
+	#docker exec -d $APP_CONTAINER /bin/bash -c "rm -f /root/${WWW_FILE}"
+	docker exec -d $HOST /bin/bash -c "rm -f /root/${ETC_FILE}"
 	docker exec -d $DB_CONTAINER /bin/bash -c "rm -f /root/${NADB_FILE}"
 	docker exec -d $DB_CONTAINER /bin/bash -c "rm -f /root/${EQDB_FILE}"
 	
