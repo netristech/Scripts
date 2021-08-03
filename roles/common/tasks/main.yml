@@ -43,13 +43,3 @@
   selinux:
     state: disabled
   when: selinux.stat.exists == True
-  
-- name: create Script dir
-  file:
-    path: "{{ item.path }}"
-    state: "{{ item.state }}"
-    owner: "{{ item.owner | default('root') }}"
-    group: "{{ item.group | default('root') }}"
-    mode: "{{ item.mode | default('0755') }}"
-  with_items:
-  - { path: '{{ script_root }}', state: 'directory' }
