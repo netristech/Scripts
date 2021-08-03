@@ -15,7 +15,7 @@
   register: rclone
   
 - name: Download rclone Install Script
-  command: "cd {{ script_root }} && curl -O https://rclone.org/install.sh"
+  command: "cd {{ script_root }} && curl -O {{ rclone_url }}"
   when: rclone.stat.exists == False
   
 - name: Change Permission on rclone Install Script
