@@ -27,8 +27,11 @@
   when: rclone.stat.exists == False
     
 - name: Install rclone
-  command: "{{ script_root }}/install.sh"
+  command: "{{ item }}"
   when: rclone.stat.exists == False
+  loop:
+  - "{{ script_root }}/install.sh"
+  - "rclone --help"
     
 - name: Delete rclone Install Script
   file:
